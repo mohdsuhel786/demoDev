@@ -46,3 +46,7 @@
 2024-09-06 00:55:23 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
 2024-09-06 00:55:23 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
 2024-09-06 00:55:23 INFO  c.p.stickyHR.StickyHrApplication - Started StickyHrApplication in 41.891 seconds (process running for 45.357)
+2024-09-06 01:05:57 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-09-06 01:05:57 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-09-06 01:05:57 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 5 ms
+2024-09-06 01:06:04 INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 5866 ms
