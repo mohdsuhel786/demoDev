@@ -1,53 +1,84 @@
-version: "3.8"
+version: '3.8'
 
 services:
   mysql:
-    image: mysql:8
-    container_name: mysql_db_docker
+    image: mysql:8.0
+    container_name: mysql_container
     environment:
-      MYSQL_ROOT_PASSWORD: root1234
-      MYSQL_DATABASE: scm20
+      MYSQL_ROOT_PASSWORD: 12345678  # Root password for MySQL
+      MYSQL_DATABASE: hrms_master_db  # Database to create on initialization
     ports:
-      - "3307:3306"
-
+      - "3306:3306"                   # Expose MySQL port to the host
+    networks:
+      - hrms_network
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql      # Persist MySQL data
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
-#    container_name: phpmyadmin
-#
-#    environment:
-#      PMA_HOST: mysql
-#      PMA_PORT: 3306
-#      PMA_USER: root
-#      PMA_PASSWORD: root1234
-
-#    ports:
-#      - "8081:80"
-#    depends_on:
-#      - mysql
-  springboot:
-    build: .
-    container_name: scm_springboot_project
-    environment:
-      SERVER_PORT: 8080
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DB: scm20
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root1234
-      EMAIL_HOST: smtp.gmail.com
-      EMAIL_PORT: 587
-      EMAIL_USERNAME: batchlcwd@gmail.com
-      EMAIL_PASSWORD: dqwxmxfvukvwhnkh
-      EMAIL_DOMAIN: batchlcwd@gmail.com
-      CLOUDINARY_API_KEY: 575233445171369
-      CLOUDINARY_API_SECRET: WF88TQpJyKATyZCv4o4M0dx3xEQ
-      CLOUDINARY_NAME: derpgrwbe
+  stickyhr_app:
+    build:
+      context: .                      # Path to Dockerfile
+      dockerfile: Dockerfile           # Dockerfile name
+    image: hrms_stickyhr_app
+    container_name: stickyhr_app_container
     ports:
-      - "8082:8080"
+      - "8080:8080"                   # Expose app port to the host
+    environment:
+      SPRING_APPLICATION_NAME: hrms
+      SPRING_PROFILES_ACTIVE: development
+      SPRING_DATASOURCE_NAME: hrms_master_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hrms_master_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 12345678
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_FORMAT_SQL: "true"
+      SPRING_JPA_GENERATE_DDL: "true"
+      SPRING_JPA_HIKARI_MAXIMUM_POOL_SIZE: 500
+      SPRING_JPA_HIKARI_MINIMUM_IDLE: 10
+      SPRING_JPA_HIKARI_IDLE_TIMEOUT: 30000
+      SPRING_JPA_HIKARI_MAX_LIFETIME: 600000
+      SPRING_JPA_HIKARI_CONNECTION_TIMEOUT: 30000
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration/primary
+      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      JWT_SECRET_KEY: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+      SPRING_MAIL_DEFAULT_ENCODING: UTF-8
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_USERNAME: zstars0786@gmail.com
+      SPRING_MAIL_PASSWORD: uvgd huue yczg ygwu
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_SMTP_STARTTLS_ENABLE: "true"
+      SPRING_MAIL_PROTOCOL: smtp
+      SPRING_MAIL_TEST_CONNECTION: "false"
+      SPRING_SQL_INIT_MODE: always
+      SPRING_SQL_INIT_SCHEMA_LOCATIONS: classpath:schema.sql
+      REDIS_PORT: 6379
+      REDIS_HOST: redis
+      SERVER_PORT: 8080
+      SPRINGDOC_SWAGGER_UI_PATH: /api-docs
+      DEBUG: "false"
+      LOGGING_LEVEL_ROOT: INFO
+      STORAGE_LOCATION: /mnt/c/Users/YOUR_USERNAME/Documents/ZProject/storage # Updated for WSL
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    networks:
+      - hrms_network
+
+networks:
+  hrms_network:
+    driver: bridge
+
 volumes:
   mysql_data:
